@@ -1,0 +1,46 @@
+version: '3.5'
+services:
+  catalog:
+    image: vegxer/shop-sample/catalog:${CATALOG_VERSION}
+    container_name: shop-sample-catalog
+    networks:
+      - catalog-lan
+    depends_on:
+      - catalog_postgres
+    restart: always
+    env_file: .env
+    ports:
+      - "${PORT}:8080"
+    environment:
+      server.port: 8080
+      spring.datasource.url: jdbc:postgresql://catalog_postgres:5432/${PG_DB}
+      spring.datasource.username: ${PG_USER}
+      spring.datasource.password: ${PG_PASSWORD}
+      spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+      spring.flyway.baseline-on-migrate: true
+      spring.jpa.hibernate.ddl-auto: validate
+      springdoc.packagesToScan: ru.vegxer.shopsample.catalog
+      TZ: "Europe/Moscow"
+  catalog_postgres:
+    image: postgres:14
+    container_name: shop-sample-postgres
+    networks:
+      - catalog-lan
+    ports:
+      - "5432:5432"
+    volumes:
+      - type: bind
+        source: ./data/postgres
+        target: /var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_HOST: catalog_postgres
+      POSTGRES_PORT: 5432
+networks:
+  catalog-lan:
+    name: shop-sample-lan
+    external: true
+    driver: bridge
