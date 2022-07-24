@@ -8,7 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AttachmentCategoryRequest {
+public class AttachmentRequest {
     private Long categoryId;
+    private Long productId;
     private MultipartFile attachment;
 }

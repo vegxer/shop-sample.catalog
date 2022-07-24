@@ -15,8 +15,8 @@ import java.util.List;
 @Table(name = "product")
 public class Product {
     @Id
-    @SequenceGenerator(name = "product_category_fk", allocationSize = 1, sequenceName = "product_category_fk")
-    @GeneratedValue(generator = "product_category_fk", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "product_id_seq", allocationSize = 1, sequenceName = "product_id_seq")
+    @GeneratedValue(generator = "product_id_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(name = "name")
@@ -32,7 +32,7 @@ public class Product {
     private Long amount;
 
     @Column(name = "state")
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private ProductState state;
 
     @ManyToOne(fetch = FetchType.LAZY)

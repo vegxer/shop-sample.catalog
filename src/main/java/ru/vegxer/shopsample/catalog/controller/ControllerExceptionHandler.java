@@ -38,10 +38,4 @@ public class ControllerExceptionHandler {
         return ResponseEntity.status(HttpStatus.INSUFFICIENT_STORAGE).body(
             new ErrorResponse(HttpStatus.INSUFFICIENT_STORAGE.value(), storageException.getMessage()));
     }
-
-    @ExceptionHandler(Throwable.class)
-    public ResponseEntity<ErrorResponse> handleInternalServerError(Exception exception) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-            new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage()));
-    }
 }

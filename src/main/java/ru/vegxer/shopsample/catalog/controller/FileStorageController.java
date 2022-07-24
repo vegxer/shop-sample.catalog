@@ -2,17 +2,15 @@ package ru.vegxer.shopsample.catalog.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ru.vegxer.shopsample.catalog.dto.request.AttachmentCategoryRequest;
-import ru.vegxer.shopsample.catalog.dto.request.AttachmentProductRequest;
-import ru.vegxer.shopsample.catalog.dto.request.CategoryPostRequest;
+import org.springframework.web.bind.annotation.*;
+import ru.vegxer.shopsample.catalog.dto.request.AttachmentRequest;
 import ru.vegxer.shopsample.catalog.service.CategoryService;
 import ru.vegxer.shopsample.catalog.service.FileStorageService;
+import ru.vegxer.shopsample.catalog.service.ProductService;
 
 @RestController
 @RequestMapping("/attachment")
@@ -20,16 +18,35 @@ import ru.vegxer.shopsample.catalog.service.FileStorageService;
 public class FileStorageController {
     final FileStorageService fileStorageService;
     final CategoryService categoryService;
+    final ProductService productService;
 
-    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<String> uploadCategoryAttachment(@ModelAttribute AttachmentCategoryRequest attachmentRequest) {
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE }, produces = { MediaType.TEXT_PLAIN_VALUE })
+    public ResponseEntity<String> uploadCategoryAttachment(@ModelAttribute AttachmentRequest attachmentRequest) {
         val filename = fileStorageService.store(attachmentRequest.getAttachment());
-        categoryService.addAttachmentToCategory(attachmentRequest.getCategoryId(), filename);
+        if (attachmentRequest.getCategoryId() != null) {
+            categoryService.replaceCategoryAttachment(attachmentRequest.getCategoryId(), filename);
+        } else {
+            productService.addAttachmentToProduct(attachmentRequest.getProductId(), filename);
+        }
         return ResponseEntity.ok(filename);
     }
 
-    /*@PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity uploadProductAttachment(@ModelAttribute AttachmentProductRequest attachmentRequest) {
-        return ResponseEntity.ok(new CategoryPostRequest());
-    }*/
+    @DeleteMapping(path = "/{filename}")
+    public ResponseEntity<?> deleteAttachment(@PathVariable String filename) {
+        fileStorageService.deleteResource(filename);
+        return ResponseEntity
+            .ok()
+            .build();
+    }
+
+    @GetMapping(path = "/{filename}", produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
+    @ResponseBody
+    public ResponseEntity<Resource> downloadAttachment(@PathVariable String filename) {
+        val resource = fileStorageService.loadAsResource(filename);
+        return ResponseEntity
+            .ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"",
+                resource.getFilename().substring(resource.getFilename().indexOf('_') + 1)))
+            .body(resource);
+    }
 }

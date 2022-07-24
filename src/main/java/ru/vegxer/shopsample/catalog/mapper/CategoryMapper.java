@@ -29,6 +29,6 @@ public interface CategoryMapper {
 
     @Named("hasChildren")
     default boolean hasChildren(List<Category> categories) {
-        return categories!= null && categories.size() > 0;
+        return categories != null && categories.size() > 0;
     }
 }

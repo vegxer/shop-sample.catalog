@@ -51,7 +51,7 @@ CREATE TABLE public.product (
     id bigint NOT NULL
         CONSTRAINT product_pk PRIMARY KEY,
     name character varying(256) NOT NULL,
-    description character varying(256),
+    description text,
     price numeric(19, 2) NOT NULL,
     amount bigint NOT NULL,
     state integer,
@@ -75,16 +75,16 @@ CREATE SEQUENCE public.product_id_seq
 ALTER SEQUENCE public.product_id_seq
     OWNER TO postgres;
 
-CREATE TABLE public.product_attachment (
+CREATE TABLE public.product_attachments (
     product_id bigint NOT NULL
         CONSTRAINT product_attachment_product_id_fk REFERENCES product (id)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
-    attachment_id bigint NOT NULL
+    attachments_id bigint NOT NULL
         CONSTRAINT product_attachment_attachment_id_fk REFERENCES attachment (id)
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
 
-ALTER TABLE public.product_attachment
+ALTER TABLE public.product_attachments
     OWNER TO postgres;

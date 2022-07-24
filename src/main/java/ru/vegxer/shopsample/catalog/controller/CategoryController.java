@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/catalog")
 @RequiredArgsConstructor
-public class CatalogController {
+public class CategoryController {
     final CategoryService categoryService;
 
 
@@ -46,6 +46,15 @@ public class CatalogController {
             .ok(categoryService.updateCategory(categoryPutRequest));
     }
 
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Удалить категорию по ID")
+    public ResponseEntity<?> deleteCategory(@PathVariable final long id) {
+        categoryService.deleteCategory(id);
+        return ResponseEntity
+            .ok()
+            .build();
+    }
+
     @GetMapping("/primal")
     @Operation(summary = "Получить первичные категории")
     @ApiResponse(description = "Список категорий", content = @Content(mediaType = "application/json",
@@ -57,12 +66,12 @@ public class CatalogController {
             .ok(categoryService.getPrimalCategories(Pageable.ofSize(pageSize).withPage(pageNumber - 1)));
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     @Operation(summary = "Получить подкатегории категории")
     @ApiResponse(description = "Список категорий", content = @Content(mediaType = "application/json",
         schema = @Schema(implementation = CategoryResponse.class, type = "array")), responseCode = "200")
     @ResponseBody
-    public ResponseEntity<List<CategoryResponse>> getPrimalCategories(@RequestParam final long id,
+    public ResponseEntity<List<CategoryResponse>> getPrimalCategories(@PathVariable final long id,
                                                                       @RequestParam(required = false, defaultValue = "10") final int pageSize,
                                                                       @RequestParam(required = false, defaultValue = "1") final int pageNumber) {
         return ResponseEntity

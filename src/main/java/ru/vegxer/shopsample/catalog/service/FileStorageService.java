@@ -62,8 +62,7 @@ public class FileStorageService {
             }
             val filePath = attachmentsLocation.resolve(filename);
             try (val inputStream = file.getInputStream()) {
-                Files.copy(inputStream, filePath,
-                    StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
             }
             createThumbnail(filePath.toFile(), attachmentsLocation.resolve(StorageUtil.buildThumbnailPath(filename)).toFile());
         }

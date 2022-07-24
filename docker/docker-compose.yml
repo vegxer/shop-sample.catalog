@@ -22,6 +22,8 @@ services:
       app.attachment.location: ${APP_ATTACHMENT_LOCATION}
       app.attachment.thumnail.size: ${APP_ATTACHMENT_THUMBNAIL_SIZE}
       TZ: "Europe/Moscow"
+    volumes:
+      - attachments:/app/attachments
   catalog_postgres:
     image: postgres:14
     container_name: shop-sample-postgres
@@ -30,9 +32,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - type: bind
-        source: ./data/postgres
-        target: /var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     restart: always
     environment:
       POSTGRES_USER: ${PG_USER}
@@ -45,3 +45,8 @@ networks:
     name: shop-sample-lan
     external: true
     driver: bridge
+volumes:
+  pgdata:
+    driver: local
+  attachments:
+    driver: local
