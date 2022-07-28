@@ -17,7 +17,7 @@ import ru.vegxer.shopsample.catalog.service.CategoryService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/catalog")
+@RequestMapping("/category")
 @RequiredArgsConstructor
 public class CategoryController {
     final CategoryService categoryService;

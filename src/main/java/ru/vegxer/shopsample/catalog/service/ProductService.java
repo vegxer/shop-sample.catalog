@@ -91,8 +91,8 @@ public class ProductService {
                 });
     }
 
-    public List<ProductShortResponse> getProductList(final Pageable pageable) {
-        return productRepository.findAll(pageable)
+    public List<ProductShortResponse> getProductList(final long categoryId, final Pageable pageable) {
+        return productRepository.findByCategory(categoryId, pageable)
             .stream()
             .map(productMapper::mapToShortResponse)
             .collect(Collectors.toList());
