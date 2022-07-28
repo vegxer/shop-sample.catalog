@@ -1,9 +1,6 @@
 package ru.vegxer.shopsample.catalog.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -13,6 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ProductResponse extends ProductShortResponse {
     private String description;
+    @NonNull
     private Long amount;
     private List<String> paths;
 }

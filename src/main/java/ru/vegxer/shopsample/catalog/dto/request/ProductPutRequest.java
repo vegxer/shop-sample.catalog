@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductPutRequest extends ProductPostRequest {
-    private Long id;
+    private long id;
 }

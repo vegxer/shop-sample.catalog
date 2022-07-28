@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CategoryPutRequest extends CategoryPostRequest {
-    private Long id;
+    private long id;
 }
