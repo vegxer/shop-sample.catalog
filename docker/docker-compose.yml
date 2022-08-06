@@ -29,7 +29,7 @@ services:
     volumes:
       - attachments:/app/attachments
   catalog_postgres:
-    image: postgres:14
+    image: postgres:13
     container_name: shop-sample-postgres
     networks:
       - catalog-lan
