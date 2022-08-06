@@ -13,7 +13,7 @@ services:
       - "${PORT}:8080"
     environment:
       server.port: 8080
-      spring.jpa.show-sql: true
+      spring.jpa.show-sql: false
       spring.jpa.generate-ddl: false
       spring.jpa.hibernate.ddl-auto: none
       spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation: true

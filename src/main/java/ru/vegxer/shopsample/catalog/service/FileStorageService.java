@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import ru.vegxer.shopsample.catalog.entity.Attachment;
 import ru.vegxer.shopsample.catalog.exception.FileNotFoundException;
 import ru.vegxer.shopsample.catalog.exception.StorageException;
 import ru.vegxer.shopsample.catalog.util.StorageUtil;
@@ -108,6 +110,10 @@ public class FileStorageService {
         FileSystemUtils.deleteRecursively(attachmentsLocation.toFile());
     }
 
+    public void deleteResources(final List<String> filenames) {
+        filenames.forEach(this::deleteResource);
+    }
+
     public void deleteResource(final String filename) {
         val filePath = load(filename);
         if (!filePath.startsWith(attachmentsLocation)) {
@@ -121,6 +127,30 @@ public class FileStorageService {
         }
         catch (IOException e) {
             throw new StorageException(String.format("Не удалось удалить файл %s", filename), e);
+        }
+    }
+
+    public void deleteAttachmentsFiles(final List<Attachment> attachments) {
+        attachments.forEach(attachment -> {
+            if (attachment != null) {
+                if (attachment.getPath() != null) {
+                    deleteResource(attachment.getPath());
+                }
+                if (attachment.getThumbnailPath() != null) {
+                    deleteResource(attachment.getThumbnailPath());
+                }
+            }
+        });
+    }
+
+    public void deleteAttachmentFiles(final Attachment attachments) {
+        if (attachments != null) {
+            if (attachments.getThumbnailPath() != null) {
+                deleteResource(attachments.getThumbnailPath());
+            }
+            if (attachments.getPath() != null) {
+                deleteResource(attachments.getPath());
+            }
         }
     }
 

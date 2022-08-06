@@ -1,14 +1,18 @@
 package ru.vegxer.shopsample.catalog.service;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import ru.vegxer.shopsample.catalog.dto.request.ProductPostRequest;
 import ru.vegxer.shopsample.catalog.dto.request.ProductPutRequest;
 import ru.vegxer.shopsample.catalog.dto.response.ProductResponse;
 import ru.vegxer.shopsample.catalog.dto.response.ProductShortResponse;
 import ru.vegxer.shopsample.catalog.entity.Attachment;
+import ru.vegxer.shopsample.catalog.entity.Product;
+import ru.vegxer.shopsample.catalog.exception.BadRequestException;
 import ru.vegxer.shopsample.catalog.mapper.ProductMapper;
 import ru.vegxer.shopsample.catalog.repository.AttachmentRepository;
 import ru.vegxer.shopsample.catalog.repository.CategoryRepository;
@@ -17,6 +21,8 @@ import ru.vegxer.shopsample.catalog.util.StorageUtil;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,8 +38,7 @@ public class ProductService {
     @Transactional
     public long createProduct(ProductPostRequest productRequest) {
         val productEntity = productMapper.mapToEntity(productRequest);
-        productEntity.setCategory(categoryRepository.findById(productRequest.getCategoryId())
-            .orElseThrow(() -> new EntityNotFoundException(String.format("Категория с id %d не найдена", productRequest.getCategoryId()))));
+        setProductCategory(productEntity, productRequest.getCategoryId());
         return productRepository.save(productEntity)
             .getId();
     }
@@ -44,8 +49,7 @@ public class ProductService {
             .orElseThrow(() -> new EntityNotFoundException(String.format("Товар с id %d не найден", productRequest.getId())));
 
         val productEntity = productMapper.mapToEntity(productRequest);
-        productEntity.setCategory(categoryRepository.findById(productRequest.getCategoryId())
-            .orElseThrow(() -> new EntityNotFoundException(String.format("Категория с id %d не найдена", productRequest.getCategoryId()))));
+        setProductCategory(productEntity, productRequest.getCategoryId());
         productEntity.setAttachments(foundEntity.getAttachments());
         return productRepository.save(productEntity)
             .getId();
@@ -74,21 +78,36 @@ public class ProductService {
         productRepository.findById(productId)
             .ifPresentOrElse(product -> {
                     productRepository.delete(product);
-                    product.getAttachments()
-                        .forEach(attachment -> {
-                            if (attachment != null) {
-                                if (attachment.getPath() != null) {
-                                    storageService.deleteResource(attachment.getPath());
-                                }
-                                if (attachment.getThumbnailPath() != null) {
-                                    storageService.deleteResource(attachment.getThumbnailPath());
-                                }
-                            }
-                        });
+                    storageService.deleteAttachmentsFiles(product.getAttachments());
                 },
                 () -> {
                     throw new EntityNotFoundException(String.format("Товар с id %d не найден", productId));
                 });
+    }
+
+    @Transactional
+    public List<String> deleteProductAttachment(final long productId, @NonNull final String filename) {
+        val deletedFiles = new ArrayList<String>();
+        productRepository.findById(productId)
+            .ifPresentOrElse(product -> {
+                    for (int i = 0; i < product.getAttachments().size(); ++i) {
+                        if (filename.equals(product.getAttachments().get(i).getPath())
+                            || filename.equals(product.getAttachments().get(i).getThumbnailPath())) {
+                            deletedFiles.add(product.getAttachments().get(i).getPath());
+                            deletedFiles.add(product.getAttachments().get(i).getThumbnailPath());
+                            product.getAttachments().remove(i);
+                            --i;
+                        }
+                    }
+                    product.getAttachments()
+                        .removeIf(attachment -> filename.equals(attachment.getPath())
+                            || filename.equals(attachment.getThumbnailPath()));
+                    productRepository.save(product);
+                },
+                () -> {
+                    throw new EntityNotFoundException(String.format("Товар с id %d не найден", productId));
+                });
+        return deletedFiles;
     }
 
     public List<ProductShortResponse> getProductList(final long categoryId, final Pageable pageable) {
@@ -103,5 +122,23 @@ public class ProductService {
             productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Товар с id %d не найден", productId)))
         );
+    }
+
+    @Transactional
+    public void deleteCategoryProducts(final long categoryId) {
+        productRepository.findByCategory(categoryId)
+            .forEach(product -> {
+                productRepository.delete(product);
+                storageService.deleteAttachmentsFiles(product.getAttachments());
+            });
+    }
+
+    private void setProductCategory(final Product product, final long categoryId) {
+        val categoryEntity = categoryRepository.findById(categoryId)
+            .orElseThrow(() -> new EntityNotFoundException(String.format("Категория с id %d не найдена", categoryId)));
+        if (!CollectionUtils.isEmpty(categoryEntity.getChildren())) {
+            throw new BadRequestException("Нельзя добавлять товары к неконечной категории");
+        }
+        product.setCategory(categoryEntity);
     }
 }

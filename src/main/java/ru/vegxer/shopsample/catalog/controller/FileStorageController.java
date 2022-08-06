@@ -21,7 +21,7 @@ public class FileStorageController {
     final ProductService productService;
 
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE }, produces = { MediaType.TEXT_PLAIN_VALUE })
-    public ResponseEntity<String> uploadCategoryAttachment(@ModelAttribute AttachmentRequest attachmentRequest) {
+    public ResponseEntity<String> uploadAttachment(@ModelAttribute AttachmentRequest attachmentRequest) {
         val filename = fileStorageService.store(attachmentRequest.getAttachment());
         if (attachmentRequest.getCategoryId() != null) {
             categoryService.replaceCategoryAttachment(attachmentRequest.getCategoryId(), filename);
@@ -32,8 +32,10 @@ public class FileStorageController {
     }
 
     @DeleteMapping(path = "/{filename}")
-    public ResponseEntity<?> deleteAttachment(@PathVariable String filename) {
-        fileStorageService.deleteResource(filename);
+    public ResponseEntity<?> deleteAttachment(@PathVariable String filename, @RequestParam long productId) {
+        fileStorageService.deleteResources(
+            productService.deleteProductAttachment(productId, filename)
+        );
         return ResponseEntity
             .ok()
             .build();

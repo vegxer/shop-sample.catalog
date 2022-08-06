@@ -6,7 +6,7 @@ spring:
       max-file-size: 8192KB
       max-request-size: 8192KB
   jpa:
-    show-sql: true
+    show-sql: false
     generate-ddl: false
     hibernate:
       ddl-auto: none

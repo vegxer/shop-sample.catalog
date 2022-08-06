@@ -13,6 +13,7 @@ import ru.vegxer.shopsample.catalog.exception.BadRequestException;
 import ru.vegxer.shopsample.catalog.mapper.CategoryMapper;
 import ru.vegxer.shopsample.catalog.repository.AttachmentRepository;
 import ru.vegxer.shopsample.catalog.repository.CategoryRepository;
+import ru.vegxer.shopsample.catalog.repository.ProductRepository;
 import ru.vegxer.shopsample.catalog.util.StorageUtil;
 
 import javax.persistence.EntityNotFoundException;
@@ -28,6 +29,7 @@ public class CategoryService {
     private final AttachmentRepository attachmentRepository;
     private final CategoryMapper categoryMapper;
     private final FileStorageService storageService;
+    private final ProductService productService;
 
     @Transactional
     public long createCategory(final CategoryPostRequest categoryRequest) {
@@ -65,14 +67,7 @@ public class CategoryService {
     public void replaceCategoryAttachment(final long categoryId, final String filename) {
         categoryRepository.findById(categoryId)
             .ifPresentOrElse(category -> {
-                    if (category.getAttachment() != null) {
-                        if (category.getAttachment().getThumbnailPath() != null) {
-                            storageService.deleteResource(category.getAttachment().getThumbnailPath());
-                        }
-                        if (category.getAttachment().getPath() != null) {
-                            storageService.deleteResource(category.getAttachment().getPath());
-                        }
-                    }
+                    storageService.deleteAttachmentFiles(category.getAttachment());
                     val attachment = Attachment.builder()
                         .path(filename)
                         .thumbnailPath(StorageUtil.buildThumbnailPath(filename))
@@ -90,15 +85,9 @@ public class CategoryService {
     public void deleteCategory(final long categoryId) {
         categoryRepository.findById(categoryId)
             .ifPresentOrElse(category -> {
+                    productService.deleteCategoryProducts(categoryId);
                     categoryRepository.delete(category);
-                    if (category.getAttachment() != null) {
-                        if (category.getAttachment().getPath() != null) {
-                            storageService.deleteResource(category.getAttachment().getPath());
-                        }
-                        if (category.getAttachment().getThumbnailPath() != null) {
-                            storageService.deleteResource(category.getAttachment().getThumbnailPath());
-                        }
-                    }
+                    storageService.deleteAttachmentFiles(category.getAttachment());
                 },
                 () -> {
                     throw new EntityNotFoundException(String.format("Категория с id %d не найдена", categoryId));
@@ -119,8 +108,10 @@ public class CategoryService {
         }
 
         if (categoryRequest.getParentId() != null) {
-            category.setParent(categoryRepository.findById(categoryRequest.getParentId())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Категория с id %d не найдена", categoryRequest.getParentId()))));
+            val parentCategory = categoryRepository.findById(categoryRequest.getParentId())
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Категория с id %d не найдена", categoryRequest.getParentId())));
+            productService.deleteCategoryProducts(parentCategory.getId());
+            category.setParent(parentCategory);
         }
         if (categoryRequest.getChildrenIds() != null) {
             if (category.getChildren() == null) {
@@ -134,6 +125,7 @@ public class CategoryService {
                     category.getChildren()
                         .add(childCategory);
                 });
+            productService.deleteCategoryProducts(category.getId());
         }
     }
 }

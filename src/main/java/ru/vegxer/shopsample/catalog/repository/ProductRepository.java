@@ -12,4 +12,7 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId")
     List<Product> findByCategory(final long categoryId, final Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId")
+    List<Product> findByCategory(final long categoryId);
 }
