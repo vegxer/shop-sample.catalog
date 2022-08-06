@@ -27,7 +27,7 @@ services:
       app.attachment.thumnail.size: ${APP_ATTACHMENT_THUMBNAIL_SIZE}
       TZ: "Europe/Moscow"
     volumes:
-      - attachments:/app/attachments
+      - attachments:${APP_ATTACHMENT_LOCATION}
   catalog_postgres:
     image: postgres:13
     container_name: shop-sample-postgres
