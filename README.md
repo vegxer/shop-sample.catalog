@@ -20,7 +20,7 @@
 ## Run with Docker
 1) Build Docker image using command
    ```
-   docker build -t vegxer/shop-sample/catalog:${CATALOG_VERSION from docker/.env} -f ./docker/Dockerfile
+   docker build -t vegxer/shop-sample/catalog:${CATALOG_VERSION from docker/.env} -f ./docker/Dockerfile .
    ```
 2) Go to directory 'docker'
 3) Set environment variables in file .env
