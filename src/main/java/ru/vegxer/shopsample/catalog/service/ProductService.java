@@ -22,7 +22,6 @@ import ru.vegxer.shopsample.catalog.util.StorageUtil;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -13,7 +13,6 @@ import ru.vegxer.shopsample.catalog.exception.BadRequestException;
 import ru.vegxer.shopsample.catalog.mapper.CategoryMapper;
 import ru.vegxer.shopsample.catalog.repository.AttachmentRepository;
 import ru.vegxer.shopsample.catalog.repository.CategoryRepository;
-import ru.vegxer.shopsample.catalog.repository.ProductRepository;
 import ru.vegxer.shopsample.catalog.util.StorageUtil;
 
 import javax.persistence.EntityNotFoundException;
