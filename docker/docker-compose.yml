@@ -34,9 +34,9 @@ services:
     networks:
       - catalog-lan
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - catalog-shop-pgdata:/var/lib/postgresql/data
     restart: always
     environment:
       POSTGRES_USER: ${PG_USER}
@@ -50,7 +50,7 @@ networks:
     external: true
     driver: bridge
 volumes:
-  pgdata:
+  catalog-shop-pgdata:
     driver: local
   attachments:
     driver: local
