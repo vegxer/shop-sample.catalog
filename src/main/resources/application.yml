@@ -31,3 +31,7 @@ app:
     thumbnail:
       size: 200
     location: attachments
+  jwt:
+    key:
+      public:
+        path: D:/Maxime/shop-sample/keys/publicKey.pem

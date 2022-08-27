@@ -28,6 +28,7 @@ services:
       TZ: "Europe/Moscow"
     volumes:
       - attachments:${APP_ATTACHMENT_LOCATION}
+      - ${APP_JWT_KEY_PUBLIC_HOST_PATH}:${APP_JWT_KEY_PUBLIC_PATH}
   catalog_postgres:
     image: postgres:13
     container_name: shop-sample-postgres

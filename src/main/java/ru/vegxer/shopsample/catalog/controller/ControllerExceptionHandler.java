@@ -3,6 +3,7 @@ package ru.vegxer.shopsample.catalog.controller;
 import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -37,5 +38,11 @@ public class ControllerExceptionHandler {
     public ResponseEntity<ErrorResponse> handleStorageException(Exception storageException) {
         return ResponseEntity.status(HttpStatus.INSUFFICIENT_STORAGE).body(
             new ErrorResponse(HttpStatus.INSUFFICIENT_STORAGE.value(), storageException.getMessage()));
+    }
+
+    @ExceptionHandler(AuthorizationServiceException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorizationException(Exception authException) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+            new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), authException.getMessage()));
     }
 }
