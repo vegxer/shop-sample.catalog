@@ -71,9 +71,9 @@ public class CategoryController {
     @ApiResponse(description = "Список категорий", content = @Content(mediaType = "application/json",
         schema = @Schema(implementation = CategoryResponse.class, type = "array")), responseCode = "200")
     @ResponseBody
-    public ResponseEntity<List<CategoryResponse>> getPrimalCategories(@PathVariable final long id,
-                                                                      @RequestParam(required = false, defaultValue = "10") final int pageSize,
-                                                                      @RequestParam(required = false, defaultValue = "1") final int pageNumber) {
+    public ResponseEntity<List<CategoryResponse>> getSubcategories(@PathVariable final long id,
+                                                                   @RequestParam(required = false, defaultValue = "10") final int pageSize,
+                                                                   @RequestParam(required = false, defaultValue = "1") final int pageNumber) {
         return ResponseEntity
             .ok(categoryService.getSubcategories(id, Pageable.ofSize(pageSize).withPage(pageNumber - 1)));
     }
