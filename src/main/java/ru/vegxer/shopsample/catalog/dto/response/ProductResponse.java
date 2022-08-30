@@ -12,5 +12,5 @@ public class ProductResponse extends ProductShortResponse {
     private String description;
     @NonNull
     private Long amount;
-    private List<String> paths;
+    private List<String> imagePaths;
 }

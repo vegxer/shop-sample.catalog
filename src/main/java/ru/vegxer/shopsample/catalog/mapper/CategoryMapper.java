@@ -6,6 +6,7 @@ import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import ru.vegxer.shopsample.catalog.dto.request.CategoryPostRequest;
 import ru.vegxer.shopsample.catalog.dto.response.CategoryResponse;
+import ru.vegxer.shopsample.catalog.dto.response.CategoryShortResponse;
 import ru.vegxer.shopsample.catalog.entity.Category;
 
 import java.util.List;
@@ -22,10 +23,12 @@ public interface CategoryMapper {
 
     @Mappings({
         @Mapping(target = "hasChildren", source = "children", qualifiedByName = "hasChildren"),
-        @Mapping(target = "thumbnailPath", source = "attachment.thumbnailPath"),
-        @Mapping(target = "path", source = "attachment.path")
+        @Mapping(target = "imageThumbnailPath", source = "attachment.thumbnailPath"),
+        @Mapping(target = "imagePath", source = "attachment.path")
     })
     CategoryResponse mapToResponse(Category category);
+
+    CategoryShortResponse mapToShortResponse(Category category);
 
     @Named("hasChildren")
     default boolean hasChildren(List<Category> categories) {

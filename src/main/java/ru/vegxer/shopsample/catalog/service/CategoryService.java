@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.vegxer.shopsample.catalog.dto.request.CategoryPostRequest;
 import ru.vegxer.shopsample.catalog.dto.request.CategoryPutRequest;
+import ru.vegxer.shopsample.catalog.dto.response.PathResponse;
 import ru.vegxer.shopsample.catalog.dto.response.CategoryResponse;
 import ru.vegxer.shopsample.catalog.entity.Attachment;
 import ru.vegxer.shopsample.catalog.entity.Category;
@@ -29,6 +30,7 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
     private final FileStorageService storageService;
     private final ProductService productService;
+    private final GeneralCategoryService generalCategoryService;
 
     @Transactional
     public long createCategory(final CategoryPostRequest categoryRequest) {
@@ -55,11 +57,13 @@ public class CategoryService {
             .collect(Collectors.toList());
     }
 
-    public List<CategoryResponse> getSubcategories(final long categoryId, final Pageable page) {
-        return categoryRepository.findSubcategories(categoryId, page)
-            .stream()
-            .map(categoryMapper::mapToResponse)
-            .collect(Collectors.toList());
+    public PathResponse<List<CategoryResponse>> getSubcategories(final long categoryId, final Pageable page) {
+        return new PathResponse<>(generalCategoryService.buildPathToCategory(categoryId),
+            categoryRepository.findSubcategories(categoryId, page)
+                .stream()
+                .map(categoryMapper::mapToResponse)
+                .collect(Collectors.toList())
+        );
     }
 
     @Transactional

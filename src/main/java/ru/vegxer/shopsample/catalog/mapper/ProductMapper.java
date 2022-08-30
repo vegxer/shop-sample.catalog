@@ -13,12 +13,12 @@ import ru.vegxer.shopsample.catalog.entity.Product;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
-    @Mapping(target = "thumbnailPaths", source = "attachments", qualifiedByName = "extractThumbnailPath")
+    @Mapping(target = "imageThumbnailPaths", source = "attachments", qualifiedByName = "extractThumbnailPath")
     ProductShortResponse mapToShortResponse(Product product);
 
     @Mappings({
-        @Mapping(target = "thumbnailPaths", source = "attachments", qualifiedByName = "extractThumbnailPath"),
-        @Mapping(target = "paths", source = "attachments", qualifiedByName = "extractPath")
+        @Mapping(target = "imageThumbnailPaths", source = "attachments", qualifiedByName = "extractThumbnailPath"),
+        @Mapping(target = "imagePaths", source = "attachments", qualifiedByName = "extractPath")
     })
     ProductResponse mapToResponse(Product product);
 

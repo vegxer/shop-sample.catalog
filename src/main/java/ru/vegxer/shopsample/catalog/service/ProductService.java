@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import ru.vegxer.shopsample.catalog.dto.request.ProductPostRequest;
 import ru.vegxer.shopsample.catalog.dto.request.ProductPutRequest;
+import ru.vegxer.shopsample.catalog.dto.response.PathResponse;
 import ru.vegxer.shopsample.catalog.dto.response.ProductResponse;
 import ru.vegxer.shopsample.catalog.dto.response.ProductShortResponse;
 import ru.vegxer.shopsample.catalog.entity.Attachment;
@@ -33,6 +34,7 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final AttachmentRepository attachmentRepository;
     private final FileStorageService storageService;
+    private final GeneralCategoryService generalCategoryService;
 
     @Transactional
     public long createProduct(ProductPostRequest productRequest) {
@@ -109,17 +111,22 @@ public class ProductService {
         return deletedFiles;
     }
 
-    public List<ProductShortResponse> getProductList(final long categoryId, final Pageable pageable) {
-        return productRepository.findByCategory(categoryId, pageable)
-            .stream()
-            .map(productMapper::mapToShortResponse)
-            .collect(Collectors.toList());
+    public PathResponse<List<ProductShortResponse>> getProductList(final long categoryId, final Pageable pageable) {
+        return new PathResponse<>(generalCategoryService.buildPathToCategory(categoryId),
+            productRepository.findByCategory(categoryId, pageable)
+                .stream()
+                .map(productMapper::mapToShortResponse)
+                .collect(Collectors.toList())
+        );
     }
 
-    public ProductResponse getProduct(final long productId) {
-        return productMapper.mapToResponse(
-            productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Товар с id %d не найден", productId)))
+    public PathResponse<ProductResponse> getProduct(final long productId) {
+        val foundProduct = productRepository.findById(productId)
+            .orElseThrow(() -> new EntityNotFoundException(String.format("Товар с id %d не найден", productId)));
+
+        return new PathResponse<>(generalCategoryService.buildPathToCategory(
+            foundProduct.getCategory().getId()),
+            productMapper.mapToResponse(foundProduct)
         );
     }
 

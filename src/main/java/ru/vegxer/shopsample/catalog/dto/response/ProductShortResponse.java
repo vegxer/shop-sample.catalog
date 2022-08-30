@@ -20,5 +20,5 @@ public class ProductShortResponse {
     @NonNull
     private BigDecimal price;
     private Product.ProductState state;
-    private List<String> thumbnailPaths;
+    private List<String> imageThumbnailPaths;
 }
