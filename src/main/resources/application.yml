@@ -29,7 +29,7 @@ springdoc:
 app:
   attachment:
     thumbnail:
-      size: 200
+      size: 300
     location: attachments
   jwt:
     key:
