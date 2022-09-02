@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   catalog:
-    image: vegxer/shop-sample/catalog:${CATALOG_VERSION}
+    image: maximkrupin/shop-sample-catalog:${CATALOG_VERSION}
     container_name: shop-sample-catalog
     networks:
       - catalog-lan
