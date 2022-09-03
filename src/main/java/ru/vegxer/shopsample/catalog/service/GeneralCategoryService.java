@@ -8,7 +8,7 @@ import ru.vegxer.shopsample.catalog.mapper.CategoryMapper;
 import ru.vegxer.shopsample.catalog.repository.CategoryRepository;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -21,10 +21,10 @@ public class GeneralCategoryService {
         var category = categoryRepository.findById(categoryId)
             .orElseThrow(() -> new EntityNotFoundException(String.format("Категория с id %d не найдена", categoryId)));
 
-        val path = new ArrayList<CategoryShortResponse>();
+        val path = new LinkedList<CategoryShortResponse>();
         while (category.getParent() != null) {
             category = category.getParent();
-            path.add(categoryMapper.mapToShortResponse(category));
+            path.add(0, categoryMapper.mapToShortResponse(category));
         }
 
         return path;

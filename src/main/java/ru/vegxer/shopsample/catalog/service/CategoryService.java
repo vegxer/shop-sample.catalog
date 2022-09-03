@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.vegxer.shopsample.catalog.dto.request.CategoryPostRequest;
 import ru.vegxer.shopsample.catalog.dto.request.CategoryPutRequest;
+import ru.vegxer.shopsample.catalog.dto.response.ItemsResponse;
 import ru.vegxer.shopsample.catalog.dto.response.PathResponse;
 import ru.vegxer.shopsample.catalog.dto.response.CategoryResponse;
 import ru.vegxer.shopsample.catalog.entity.Attachment;
@@ -57,12 +58,17 @@ public class CategoryService {
             .collect(Collectors.toList());
     }
 
-    public PathResponse<List<CategoryResponse>> getSubcategories(final long categoryId, final Pageable page) {
+    public PathResponse<ItemsResponse<CategoryResponse>> getSubcategories(final long categoryId, final Pageable page) {
         return new PathResponse<>(generalCategoryService.buildPathToCategory(categoryId),
-            categoryRepository.findSubcategories(categoryId, page)
-                .stream()
-                .map(categoryMapper::mapToResponse)
-                .collect(Collectors.toList())
+            new ItemsResponse<>(
+                categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new EntityNotFoundException(String.format("Категория с id %d не найдена", categoryId)))
+                    .getName(),
+                categoryRepository.findSubcategories(categoryId, page)
+                    .stream()
+                    .map(categoryMapper::mapToResponse)
+                    .collect(Collectors.toList())
+            )
         );
     }
 

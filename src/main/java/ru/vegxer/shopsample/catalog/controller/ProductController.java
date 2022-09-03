@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.vegxer.shopsample.catalog.dto.request.ProductPostRequest;
 import ru.vegxer.shopsample.catalog.dto.request.ProductPutRequest;
+import ru.vegxer.shopsample.catalog.dto.response.ItemsResponse;
 import ru.vegxer.shopsample.catalog.dto.response.PathResponse;
 import ru.vegxer.shopsample.catalog.dto.response.ProductResponse;
 import ru.vegxer.shopsample.catalog.dto.response.ProductShortResponse;
@@ -47,13 +48,13 @@ public class ProductController {
     @GetMapping("/category/{id}/products")
     @Operation(summary = "Получить список товаров категории")
     @ApiResponse(description = "Список товаров", content = @Content(mediaType = "application/json",
-        schema = @Schema(implementation = PathResponse.class, type = "array")), responseCode = "200")
+        schema = @Schema(implementation = PathResponse.class)), responseCode = "200")
     @ResponseBody
-    public ResponseEntity<PathResponse<List<ProductShortResponse>>> getProductList(@PathVariable final long id,
-                                                                             @RequestParam(required = false, defaultValue = "20") final int pageSize,
-                                                                             @RequestParam(required = false, defaultValue = "1") final int pageNumber,
-                                                                             @RequestParam(required = false, defaultValue = "name") final String sortBy,
-                                                                             @RequestParam(required = false, defaultValue = "asc") final String direction) {
+    public ResponseEntity<PathResponse<ItemsResponse<ProductShortResponse>>> getProductList(@PathVariable final long id,
+                                                                                            @RequestParam(required = false, defaultValue = "20") final int pageSize,
+                                                                                            @RequestParam(required = false, defaultValue = "1") final int pageNumber,
+                                                                                            @RequestParam(required = false, defaultValue = "name") final String sortBy,
+                                                                                            @RequestParam(required = false, defaultValue = "asc") final String direction) {
         return ResponseEntity
             .ok(productService.getProductList(
                 id,

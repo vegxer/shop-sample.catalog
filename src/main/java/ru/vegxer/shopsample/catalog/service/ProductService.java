@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import ru.vegxer.shopsample.catalog.dto.request.ProductPostRequest;
 import ru.vegxer.shopsample.catalog.dto.request.ProductPutRequest;
-import ru.vegxer.shopsample.catalog.dto.response.PathResponse;
-import ru.vegxer.shopsample.catalog.dto.response.ProductResponse;
-import ru.vegxer.shopsample.catalog.dto.response.ProductShortResponse;
+import ru.vegxer.shopsample.catalog.dto.response.*;
 import ru.vegxer.shopsample.catalog.entity.Attachment;
 import ru.vegxer.shopsample.catalog.entity.Product;
 import ru.vegxer.shopsample.catalog.exception.BadRequestException;
@@ -111,23 +109,26 @@ public class ProductService {
         return deletedFiles;
     }
 
-    public PathResponse<List<ProductShortResponse>> getProductList(final long categoryId, final Pageable pageable) {
+    public PathResponse<ItemsResponse<ProductShortResponse>> getProductList(final long categoryId, final Pageable pageable) {
         return new PathResponse<>(generalCategoryService.buildPathToCategory(categoryId),
-            productRepository.findByCategory(categoryId, pageable)
-                .stream()
-                .map(productMapper::mapToShortResponse)
-                .collect(Collectors.toList())
+            new ItemsResponse<>(categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Категория с id %d не найдена", categoryId)))
+                .getName(),
+                productRepository.findByCategory(categoryId, pageable)
+                    .stream()
+                    .map(productMapper::mapToShortResponse)
+                    .collect(Collectors.toList())
+            )
         );
     }
 
     public PathResponse<ProductResponse> getProduct(final long productId) {
         val foundProduct = productRepository.findById(productId)
             .orElseThrow(() -> new EntityNotFoundException(String.format("Товар с id %d не найден", productId)));
+        val pathToCategory = generalCategoryService.buildPathToCategory(foundProduct.getCategory().getId());
+        pathToCategory.add(new CategoryShortResponse(foundProduct.getCategory().getId(), foundProduct.getCategory().getName()));
 
-        return new PathResponse<>(generalCategoryService.buildPathToCategory(
-            foundProduct.getCategory().getId()),
-            productMapper.mapToResponse(foundProduct)
-        );
+        return new PathResponse<>(pathToCategory, productMapper.mapToResponse(foundProduct));
     }
 
     @Transactional

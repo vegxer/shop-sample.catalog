@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.vegxer.shopsample.catalog.dto.request.CategoryPostRequest;
 import ru.vegxer.shopsample.catalog.dto.request.CategoryPutRequest;
+import ru.vegxer.shopsample.catalog.dto.response.ItemsResponse;
 import ru.vegxer.shopsample.catalog.dto.response.PathResponse;
 import ru.vegxer.shopsample.catalog.dto.response.CategoryResponse;
 import ru.vegxer.shopsample.catalog.service.CategoryService;
@@ -72,9 +73,9 @@ public class CategoryController {
     @ApiResponse(description = "Список категорий", content = @Content(mediaType = "application/json",
         schema = @Schema(implementation = PathResponse.class)), responseCode = "200")
     @ResponseBody
-    public ResponseEntity<PathResponse<List<CategoryResponse>>> getSubcategories(@PathVariable final long id,
-                                                         @RequestParam(required = false, defaultValue = "10") final int pageSize,
-                                                         @RequestParam(required = false, defaultValue = "1") final int pageNumber) {
+    public ResponseEntity<PathResponse<ItemsResponse<CategoryResponse>>> getSubcategories(@PathVariable final long id,
+                                                                        @RequestParam(required = false, defaultValue = "10") final int pageSize,
+                                                                        @RequestParam(required = false, defaultValue = "1") final int pageNumber) {
         return ResponseEntity
             .ok(categoryService.getSubcategories(id, Pageable.ofSize(pageSize).withPage(pageNumber - 1)));
     }
