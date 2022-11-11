@@ -17,8 +17,6 @@ import ru.vegxer.shopsample.catalog.dto.response.ProductResponse;
 import ru.vegxer.shopsample.catalog.dto.response.ProductShortResponse;
 import ru.vegxer.shopsample.catalog.service.ProductService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/")
 @RequiredArgsConstructor
