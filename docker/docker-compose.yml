@@ -12,7 +12,7 @@ services:
       - catalog-lan
     env_file: .env
   catalog:
-    image: maximkrupin/shop-sample-catalog:${CATALOG_VERSION}
+    image: vscode.maxeem.ru/shop-sample-catalog:${CATALOG_VERSION}
     container_name: shop-sample-catalog
     networks:
       - catalog-lan
