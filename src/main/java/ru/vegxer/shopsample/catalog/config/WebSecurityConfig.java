@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import ru.vegxer.shopsample.catalog.filter.JwtAuthenticationFilter;
 
 @Configuration
@@ -35,6 +36,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .anyRequest().authenticated()
             .and()
             .formLogin().disable()
-            .httpBasic().disable();
+            .httpBasic().disable()
+            .cors().configurationSource(c -> {
+                CorsConfiguration corsCfg = new CorsConfiguration();
+                corsCfg.addAllowedOriginPattern("*");
+                corsCfg.addAllowedMethod(CorsConfiguration.ALL);
+                return corsCfg;
+            });
     }
 }

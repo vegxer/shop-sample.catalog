@@ -43,15 +43,19 @@ public class ProductService {
     }
 
     @Transactional
-    public long updateProduct(ProductPutRequest productRequest) {
+    public PathResponse<ProductResponse> updateProduct(ProductPutRequest productRequest) {
         val foundEntity = productRepository.findById(productRequest.getId())
             .orElseThrow(() -> new EntityNotFoundException(String.format("Товар с id %d не найден", productRequest.getId())));
 
         val productEntity = productMapper.mapToEntity(productRequest);
         setProductCategory(productEntity, productRequest.getCategoryId());
         productEntity.setAttachments(foundEntity.getAttachments());
-        return productRepository.save(productEntity)
-            .getId();
+        val categoryPath = generalCategoryService.buildPathToCategory(productEntity.getCategory().getId());
+        categoryPath.add(new CategoryShortResponse(productEntity.getCategory().getId(), productEntity.getCategory().getName()));
+        return new PathResponse<>(
+            categoryPath,
+            productMapper.mapToResponse(productRepository.save(productEntity))
+        );
     }
 
     @Transactional
@@ -109,15 +113,19 @@ public class ProductService {
         return deletedFiles;
     }
 
-    public PathResponse<ItemsResponse<ProductShortResponse>> getProductList(final long categoryId, final Pageable pageable) {
+    public PathResponse<ItemsResponse<PagedResponse<ProductShortResponse>>> getProductList(final long categoryId, final Pageable pageable) {
+        val pagedProducts = productRepository.findByCategory(categoryId, pageable);
         return new PathResponse<>(generalCategoryService.buildPathToCategory(categoryId),
             new ItemsResponse<>(categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Категория с id %d не найдена", categoryId)))
                 .getName(),
-                productRepository.findByCategory(categoryId, pageable)
-                    .stream()
-                    .map(productMapper::mapToShortResponse)
-                    .collect(Collectors.toList())
+                new PagedResponse<>(
+                    pagedProducts.getContent()
+                        .stream()
+                        .map(productMapper::mapToShortResponse)
+                        .collect(Collectors.toList()),
+                    pagedProducts.getTotalPages()
+                )
             )
         );
     }
@@ -131,6 +139,10 @@ public class ProductService {
         return new PathResponse<>(pathToCategory, productMapper.mapToResponse(foundProduct));
     }
 
+    public List<Product> getAllProducts(final long categoryId) {
+        return productRepository.findByCategory(categoryId);
+    }
+
     @Transactional
     public void deleteCategoryProducts(final long categoryId) {
         productRepository.findByCategory(categoryId)
@@ -140,7 +152,7 @@ public class ProductService {
             });
     }
 
-    private void setProductCategory(final Product product, final long categoryId) {
+    public void setProductCategory(final Product product, final long categoryId) {
         val categoryEntity = categoryRepository.findById(categoryId)
             .orElseThrow(() -> new EntityNotFoundException(String.format("Категория с id %d не найдена", categoryId)));
         if (!CollectionUtils.isEmpty(categoryEntity.getChildren())) {

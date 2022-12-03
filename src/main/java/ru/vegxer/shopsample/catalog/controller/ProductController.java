@@ -11,11 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.vegxer.shopsample.catalog.dto.request.ProductPostRequest;
 import ru.vegxer.shopsample.catalog.dto.request.ProductPutRequest;
-import ru.vegxer.shopsample.catalog.dto.response.ItemsResponse;
-import ru.vegxer.shopsample.catalog.dto.response.PathResponse;
-import ru.vegxer.shopsample.catalog.dto.response.ProductResponse;
-import ru.vegxer.shopsample.catalog.dto.response.ProductShortResponse;
+import ru.vegxer.shopsample.catalog.dto.response.*;
 import ru.vegxer.shopsample.catalog.service.ProductService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/")
@@ -36,7 +35,7 @@ public class ProductController {
     @PutMapping("/product")
     @Operation(summary = "Обновить товар")
     @ApiResponse(description = "ID обновлённого товара", responseCode = "200")
-    public ResponseEntity<Long> updateProduct(@io.swagger.v3.oas.annotations.parameters.RequestBody(
+    public ResponseEntity<PathResponse<ProductResponse>> updateProduct(@io.swagger.v3.oas.annotations.parameters.RequestBody(
         content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductPutRequest.class)))
                                               @RequestBody ProductPutRequest productPutRequest) {
         return ResponseEntity
@@ -48,11 +47,11 @@ public class ProductController {
     @ApiResponse(description = "Список товаров", content = @Content(mediaType = "application/json",
         schema = @Schema(implementation = PathResponse.class)), responseCode = "200")
     @ResponseBody
-    public ResponseEntity<PathResponse<ItemsResponse<ProductShortResponse>>> getProductList(@PathVariable final long id,
-                                                                                            @RequestParam(required = false, defaultValue = "20") final int pageSize,
-                                                                                            @RequestParam(required = false, defaultValue = "1") final int pageNumber,
-                                                                                            @RequestParam(required = false, defaultValue = "name") final String sortBy,
-                                                                                            @RequestParam(required = false, defaultValue = "asc") final String direction) {
+    public ResponseEntity<PathResponse<ItemsResponse<PagedResponse<ProductShortResponse>>>> getProductList(@PathVariable final long id,
+                                                                                                           @RequestParam(required = false, defaultValue = "20") final int pageSize,
+                                                                                                           @RequestParam(required = false, defaultValue = "1") final int pageNumber,
+                                                                                                           @RequestParam(required = false, defaultValue = "name") final String sortBy,
+                                                                                                           @RequestParam(required = false, defaultValue = "asc") final String direction) {
         return ResponseEntity
             .ok(productService.getProductList(
                 id,
