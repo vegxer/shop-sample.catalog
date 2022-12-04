@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   catalog-nginx:
-    image: maximkrupin/shop-sample-nginx:1.23.1
+    image: vscode.maxeem.ru/shop-sample-nginx:1.23.1
     volumes:
       - ./nginx.conf.template:/etc/nginx/nginx.conf.template
     depends_on:
